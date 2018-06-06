@@ -1,0 +1,10 @@
+
+flatcc:
+  origin: https://github.com/dvidelabs/flatcc.git
+  mirrors:
+    - git@server:user/test-flatcc-mirror.git
+
+bgfx:
+  origin: https://github.com/bkaradzic/bgfx.git
+  mirrors:
+    - git@server:user/test-bgfx-mirror.git
