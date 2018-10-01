@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import codecs
 import yaml
 
+callbacks = None
 
 def loadConfig(filename):
     with codecs.open(filename, 'r', encoding='utf-8') as settingsfile:
@@ -30,14 +31,16 @@ def mirrorRepo(repo, config):
     repopath = Path.cwd().joinpath(repo)
     if args.do_fetch:
         if not repopath.exists():
-            createMirrorRepo(repopath, config)
+            createMirrorClone(repopath, config)
         else:
-            updateMirrorRepo(repopath, config)
+            updateMirrorClone(repopath, config)
+    if args.do_create:
+        createMirrorRemotes(repopath, config)
     if args.do_push:
-        pushMirrors(repopath, config)
+        pushMirrorRemotes(repopath, config)
 
 
-def createMirrorRepo(repopath, config):
+def createMirrorClone(repopath, config):
     cmd_args = ['git', 'clone', '--mirror']
     cmd_args.extend([config['origin']])
     cmd_args.extend([str(repopath)])
@@ -46,7 +49,7 @@ def createMirrorRepo(repopath, config):
     os.system(cmd)
 
 
-def updateMirrorRepo(repopath, config):
+def updateMirrorClone(repopath, config):
     with pushPath(repopath):
         cmd_args = ['git', 'fetch', '--all']
         cmd = " ".join(cmd_args)
@@ -54,7 +57,7 @@ def updateMirrorRepo(repopath, config):
         os.system(cmd)
 
 
-def pushMirrors(repopath, config):
+def pushMirrorRemotes(repopath, config):
     with pushPath(repopath):
         for mirror in config['mirrors']:
             cmd_args = ['git', 'push', '--all']
@@ -64,17 +67,35 @@ def pushMirrors(repopath, config):
             os.system(cmd)
 
 
+def createMirrorRemotes(repopath, config):
+    for mirror in config['mirrors']:
+        for key in callbacks:
+            cb = callbacks[key]
+            if key in mirror:
+                cmd_args = [cb]
+                cmd_args.extend([mirror])
+                cmd_args.extend(['"mirrored from {}"'.format(config['origin'])])
+                cmd = " ".join(cmd_args)
+                print(cmd)
+                os.system(cmd)
+
+
 def main(args):
     config = loadConfig(args.config)
     assert config, "could not load configuation at {}".format(str(args.config))
 
-    for repo in config:
-        mirrorRepo(repo, config[repo])
+    global callbacks
+    callbacks = config['callbacks']
+    print(callbacks)
+
+    for repo in config['repos']:
+        mirrorRepo(repo, config['repos'][repo])
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', help='config file', type=Path)
+    parser.add_argument('--no-create', dest='do_create',  help='skip creating remotes for mirrors', action='store_false')
     parser.add_argument('--no-fetch', dest='do_fetch',  help='skip fetching remotes', action='store_false')
     parser.add_argument('--no-push', dest='do_push', help='skip pushing back to mirrors', action='store_false')
     args = parser.parse_args()
