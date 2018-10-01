@@ -1,0 +1,2 @@
+# github-make-remote config for custom domain running GHE
+hostname: 'github.my-domain.org'
