@@ -1,5 +1,8 @@
 ## Requirements for repotools
 
-yaml
+pyyaml
 argparse
-contextlib
+PyGithub
+python-gitlab
+pybitbucket
+bitbucket-api
