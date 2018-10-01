@@ -1,0 +1,4 @@
+# gitlab-make-remote config for Gitlab
+hostname: 'gitlab.com'
+lfs_enabled: True
+visibility: 'private'
