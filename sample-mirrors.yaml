@@ -1,0 +1,13 @@
+callbacks:
+  'github.com': 'python github-make-remote.py -c github_host.yaml -t $(GH_USER_TOKEN)'
+  'gitlab.com': 'python gitlab-make-remote.py -c gitlab_host.yaml -t $(GL_USER_TOKEN)'
+  'bitbucket.com': 'python bitbucket-make-remote.py -c bitbucket_host.yaml -t $(BB_USER_TOKEN)'
+
+repos:
+  ## mirroring my own repo
+  flatGLTF:
+    origin: https://github.com/KageKirin/flatGLTF.git
+    mirrors:
+      - git@github.com:KageKirin/flatGLTF-mirror-test.git
+      - git@gitlab.com:KageKirin/flatGLTF-mirror-test.git
+      - git@bitbucket.com:KageKirin/flatGLTF-mirror-test.git
